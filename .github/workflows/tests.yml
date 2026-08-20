@@ -17,9 +17,9 @@ jobs:
         laravel: ['10', '11', '12', '13']
         dependency-version: [prefer-lowest, prefer-stable]
         exclude:
-          # testbench 8 (laravel 10) requires pest 2, not compatible with prefer-lowest on php 8.4
+          # all early laravel 10.x minor versions are blocked by composer security advisories,
+          # so prefer-lowest cannot resolve testbench ^8.0 against any installable set
           - laravel: '10'
-            php: '8.4'
             dependency-version: prefer-lowest
 
     name: php ${{ matrix.php }} / laravel ${{ matrix.laravel }} / ${{ matrix.dependency-version }}
