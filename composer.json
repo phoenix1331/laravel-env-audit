@@ -2,18 +2,34 @@
     "name": "phoenix1331/laravel-env-audit",
     "description": "Coverage reporting for your .env — static analysis for env() call isolation, .env.example drift, and secret heuristics.",
     "type": "library",
+    "keywords": [
+        "laravel",
+        "env",
+        "environment",
+        "audit",
+        "static-analysis",
+        "security",
+        "dotenv",
+        "config-cache",
+        "secrets"
+    ],
+    "homepage": "https://github.com/phoenix1331/laravel-env-audit",
     "license": "MIT",
     "authors": [
         {
-            "name": "Darren",
+            "name": "Darren Williams",
             "homepage": "https://github.com/phoenix1331"
         }
     ],
+    "support": {
+        "issues": "https://github.com/phoenix1331/laravel-env-audit/issues",
+        "source": "https://github.com/phoenix1331/laravel-env-audit"
+    },
     "require": {
         "php": "^8.2",
-        "illuminate/contracts": "^10.0|^11.0|^12.0",
-        "illuminate/support": "^10.0|^11.0|^12.0",
-        "illuminate/console": "^10.0|^11.0|^12.0",
+        "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/console": "^10.0|^11.0|^12.0|^13.0",
         "nikic/php-parser": "^5.0"
     },
     "require-dev": {
@@ -37,6 +53,13 @@
                 "Phoenix1331\\LaravelEnvAudit\\LaravelEnvAuditServiceProvider"
             ]
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "test:unit": "vendor/bin/pest tests/Unit",
+        "test:feature": "vendor/bin/pest tests/Feature",
+        "lint": "vendor/bin/pint",
+        "lint:check": "vendor/bin/pint --test"
     },
     "config": {
         "sort-packages": true,
