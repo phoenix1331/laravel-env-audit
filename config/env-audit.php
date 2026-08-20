@@ -86,6 +86,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Real .env drift
+    |--------------------------------------------------------------------------
+    | When enabled, the real .env file is compared against .env.example using
+    | key names only (values are never read or stored). Opt-in because CI
+    | environments often have no .env file present.
+    */
+    'drift' => [
+        'check_real_env' => false,
+        'env_file' => null, // defaults to base_path('.env') when null
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Require ignore reasons
     |--------------------------------------------------------------------------
     | When true, every attribute-based or inline-comment ignore must carry a

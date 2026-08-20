@@ -55,10 +55,25 @@ class EnvAuditRunCommand extends Command
             fn ($call) => ! $call->inConfig && ! $attributeResolver->isCovered($call->file, $call->line, $allIgnores)
         ));
 
-        // Drift detection
+        // Drift detection (config layer vs .env.example)
         $usedInConfig = $resolver->keysUsedInConfig($allCalls);
         $missingFromExample = $resolver->missingFromExample($usedInConfig, $exampleEntries);
         $unusedInExample = $resolver->unusedInExample($exampleEntries, $allCalls);
+
+        // Real .env vs .env.example drift (opt-in, keys only)
+        $envOnlyKeys = [];
+        $exampleOnlyKeys = [];
+
+        if (config('env-audit.drift.check_real_env', false)) {
+            $envFile = config('env-audit.drift.env_file') ?? base_path('.env');
+
+            if (file_exists($envFile)) {
+                $envKeys = array_keys($parser->parseKeys($envFile));
+                $exampleKeys = array_keys($exampleEntries);
+                $envOnlyKeys = array_values(array_diff($envKeys, $exampleKeys));
+                $exampleOnlyKeys = array_values(array_diff($exampleKeys, $envKeys));
+            }
+        }
 
         // Secret heuristic on .env.example values only
         $possibleSecrets = [];
@@ -79,6 +94,8 @@ class EnvAuditRunCommand extends Command
             allIgnores: $allIgnores,
             skippedFiles: $scanner->skippedFiles(),
             requireReasons: (bool) config('env-audit.require_ignore_reasons', true),
+            envOnlyKeys: $envOnlyKeys,
+            exampleOnlyKeys: $exampleOnlyKeys,
         );
 
         // Output

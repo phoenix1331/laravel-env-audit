@@ -125,6 +125,7 @@ class HtmlFormatter
             {$ignoreRows}
           </section>
 
+          {$this->envDriftSection($report)}
           {$this->expiredSection($report, $expiredRows)}
           {$this->missingReasonSection($report, $missingReasonRows)}
           {$this->skippedFilesSection($report)}
@@ -325,6 +326,38 @@ class HtmlFormatter
           <tbody>{$rows}</tbody>
         </table>
         TABLE;
+    }
+
+    private function envDriftSection(EnvAuditReport $report): string
+    {
+        if (count($report->envOnlyKeys) === 0 && count($report->exampleOnlyKeys) === 0) {
+            return '';
+        }
+
+        $envOnlyRows = '';
+        foreach ($report->envOnlyKeys as $key) {
+            $key = htmlspecialchars($key, ENT_QUOTES);
+            $envOnlyRows .= "<tr><td class=\"key-name\">{$key}</td><td class=\"reason-text\">in .env, missing from .env.example</td></tr>";
+        }
+
+        foreach ($report->exampleOnlyKeys as $key) {
+            $key = htmlspecialchars($key, ENT_QUOTES);
+            $envOnlyRows .= "<tr><td class=\"key-name\">{$key}</td><td class=\"reason-text\">in .env.example, missing from .env</td></tr>";
+        }
+
+        $total = count($report->envOnlyKeys) + count($report->exampleOnlyKeys);
+
+        return <<<SECTION
+        <section>
+          <div class="section-header section-warning">
+            &#9888; Real .env Drift ({$total})
+          </div>
+          <table>
+            <thead><tr><th data-col="0">Key</th><th data-col="1">Direction</th></tr></thead>
+            <tbody>{$envOnlyRows}</tbody>
+          </table>
+        </section>
+        SECTION;
     }
 
     private function missingReasonIgnoreRows(EnvAuditReport $report): string

@@ -168,6 +168,8 @@ Publish with `php artisan vendor:publish --tag=env-audit-config`.
 | `secret_heuristics.patterns` | array | `[]` | Extra regex patterns beyond the built-in set |
 | `html.output_path` | string | `storage/env-audit/report.html` | HTML report destination |
 | `html.title` | string | `'Env Audit Report'` | HTML report header text |
+| `drift.check_real_env` | bool | `false` | Compare the real `.env` against `.env.example` by key names only; opt-in so CI environments without a `.env` are not broken |
+| `drift.env_file` | string\|null | `null` | Path to the real `.env` file; defaults to `base_path('.env')` when null |
 | `require_ignore_reasons` | bool | `true` | Forces every bypass to carry a documented reason |
 
 ---

@@ -35,6 +35,10 @@ class JsonFormatter
             ], $report->possibleSecrets),
             'missing_from_example' => $report->missingFromExample,
             'unused_in_example' => $report->unusedInExample,
+            'env_drift' => [
+                'env_only' => $report->envOnlyKeys,
+                'example_only' => $report->exampleOnlyKeys,
+            ],
             'bypasses' => [
                 'active' => array_map($bypassEntry, $report->ignores),
                 'expired' => array_map($bypassEntry, $report->expiredIgnores),

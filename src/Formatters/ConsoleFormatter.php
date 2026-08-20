@@ -26,6 +26,7 @@ class ConsoleFormatter
         $this->writePossibleSecrets($report, $output);
         $this->writeMissingFromExample($report, $output);
         $this->writeUnusedInExample($report, $output);
+        $this->writeEnvDrift($report, $output);
         $this->writeIgnores($report, $output);
         $this->writeExpiredIgnores($report, $output);
         $this->writeMissingReasonIgnores($report, $output);
@@ -168,6 +169,33 @@ class ConsoleFormatter
         }
 
         $output->newLine();
+    }
+
+    private function writeEnvDrift(EnvAuditReport $report, OutputStyle $output): void
+    {
+        if (count($report->envOnlyKeys) === 0 && count($report->exampleOnlyKeys) === 0) {
+            return;
+        }
+
+        if (count($report->envOnlyKeys) > 0) {
+            $output->writeln(sprintf('  <fg=yellow>⚠ In .env but missing from .env.example (%d)</>', count($report->envOnlyKeys)));
+
+            foreach ($report->envOnlyKeys as $key) {
+                $output->writeln(sprintf('    <fg=white>%s</>', $key));
+            }
+
+            $output->newLine();
+        }
+
+        if (count($report->exampleOnlyKeys) > 0) {
+            $output->writeln(sprintf('  <fg=blue>ℹ In .env.example but missing from .env (%d)</>', count($report->exampleOnlyKeys)));
+
+            foreach ($report->exampleOnlyKeys as $key) {
+                $output->writeln(sprintf('    <fg=white>%s</>', $key));
+            }
+
+            $output->newLine();
+        }
     }
 
     private function writeMissingReasonIgnores(EnvAuditReport $report, OutputStyle $output): void

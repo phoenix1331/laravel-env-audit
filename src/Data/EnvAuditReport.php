@@ -12,6 +12,8 @@ class EnvAuditReport
      * @param  array<IgnoreEntry>  $ignores  all active bypass entries
      * @param  array<IgnoreEntry>  $expiredIgnores  bypass entries whose expires date has passed
      * @param  array<IgnoreEntry>  $missingReasonIgnores  bypass entries with no documented reason
+     * @param  array<string>  $envOnlyKeys  keys in .env but absent from .env.example
+     * @param  array<string>  $exampleOnlyKeys  keys in .env.example but absent from .env
      * @param  int  $totalEnvCalls  total env() calls scanned
      * @param  int  $configEnvCalls  env() calls inside config/
      * @param  int  $skippedFiles  files that could not be parsed
@@ -24,6 +26,8 @@ class EnvAuditReport
         public readonly array $ignores,
         public readonly array $expiredIgnores,
         public readonly array $missingReasonIgnores,
+        public readonly array $envOnlyKeys,
+        public readonly array $exampleOnlyKeys,
         public readonly int $totalEnvCalls,
         public readonly int $configEnvCalls,
         public readonly int $skippedFiles,
@@ -90,6 +94,8 @@ class EnvAuditReport
         array $allIgnores,
         int $skippedFiles = 0,
         bool $requireReasons = false,
+        array $envOnlyKeys = [],
+        array $exampleOnlyKeys = [],
     ): self {
         $totalEnvCalls = count($allCalls);
         $configEnvCalls = count(array_filter($allCalls, fn (EnvCall $c) => $c->inConfig));
@@ -107,6 +113,8 @@ class EnvAuditReport
             ignores: $activeIgnores,
             expiredIgnores: $expiredIgnores,
             missingReasonIgnores: $missingReasonIgnores,
+            envOnlyKeys: $envOnlyKeys,
+            exampleOnlyKeys: $exampleOnlyKeys,
             totalEnvCalls: $totalEnvCalls,
             configEnvCalls: $configEnvCalls,
             skippedFiles: $skippedFiles,
