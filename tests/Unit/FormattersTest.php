@@ -18,8 +18,12 @@ function buildReport(array $overrides = []): EnvAuditReport
         possibleSecrets: $overrides['secrets'] ?? [],
         ignores: $overrides['ignores'] ?? [],
         expiredIgnores: $overrides['expired'] ?? [],
+        missingReasonIgnores: $overrides['missingReason'] ?? [],
+        envOnlyKeys: $overrides['envOnly'] ?? [],
+        exampleOnlyKeys: $overrides['exampleOnly'] ?? [],
         totalEnvCalls: $overrides['total'] ?? 0,
         configEnvCalls: $overrides['config'] ?? 0,
+        skippedFiles: $overrides['skipped'] ?? 0,
     );
 }
 
