@@ -24,6 +24,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - GitHub Actions CI matrix across PHP 8.2/8.3/8.4 x Laravel 10/11/12/13 with `--prefer-lowest` and `--prefer-stable` runs
 - `orchestra/testbench ^11` added to `require-dev` so Laravel 13 compatibility is actually testable
 - `EnvFileParser::parseKeys()` is now wired into the command: keys in `.env` are compared against `.env.example` in both directions; opt-in via `drift.check_real_env` config (defaults false)
+- `missing-reason` violation category surfaced in all formatters when `require_ignore_reasons` is enabled and a bypass has no reason string
+- `skipped_files` count surfaced in all formatters when files cannot be parsed
+- `schema_version` field added to JSON output for reliable downstream parsing
 - README competitor comparison section explaining what this package provides that Larastan, env-sync packages, and gitleaks do not
 
 ---
