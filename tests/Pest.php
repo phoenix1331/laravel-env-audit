@@ -1,3 +1,5 @@
 <?php
 
-uses(Phoenix1331\LaravelEnvAudit\Tests\TestCase::class)->in('Feature');
+use Phoenix1331\LaravelEnvAudit\Tests\TestCase;
+
+uses(TestCase::class)->in('Feature');
