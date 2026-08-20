@@ -11,6 +11,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Config path
+    |--------------------------------------------------------------------------
+    | The directory that is considered "inside config/" for isolation scoring.
+    | env() calls in files under this path are not flagged as direct-usage.
+    */
+    'config_path' => config_path(),
+
+    /*
+    |--------------------------------------------------------------------------
     | Scan paths
     |--------------------------------------------------------------------------
     | Directories walked for env() call detection.
