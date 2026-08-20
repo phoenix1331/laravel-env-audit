@@ -1,0 +1,49 @@
+{
+    "name": "phoenix1331/laravel-env-audit",
+    "description": "Coverage reporting for your .env — static analysis for env() call isolation, .env.example drift, and secret heuristics.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Darren",
+            "homepage": "https://github.com/phoenix1331"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/contracts": "^10.0|^11.0|^12.0",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "illuminate/console": "^10.0|^11.0|^12.0",
+        "nikic/php-parser": "^5.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.0",
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "pestphp/pest": "^2.0|^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Phoenix1331\\LaravelEnvAudit\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Phoenix1331\\LaravelEnvAudit\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Phoenix1331\\LaravelEnvAudit\\LaravelEnvAuditServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

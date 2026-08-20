@@ -1,0 +1,6 @@
+/vendor
+/test-app
+/.claude
+composer.lock
+*.cache
+.phpunit.result.cache
