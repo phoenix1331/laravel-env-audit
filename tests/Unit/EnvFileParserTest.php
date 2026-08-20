@@ -109,7 +109,7 @@ it('returns empty array for missing example file', function () {
 it('never returns real env values from parseKeys', function () {
     $path = writeFile($this->tmpDir, '.env', "STRIPE_SECRET=sk_live_realkey123\n");
     $result = $this->parser->parseKeys($path);
-    // values must all be null — real secrets never exposed
+    // values must all be null: real secrets never exposed
     foreach ($result as $value) {
         expect($value)->toBeNull();
     }

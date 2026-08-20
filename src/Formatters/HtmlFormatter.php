@@ -19,6 +19,7 @@ class HtmlFormatter
         $unusedRows = $this->unusedRows($report);
         $ignoreRows = $this->ignoreRows($report);
         $expiredRows = $this->expiredIgnoreRows($report);
+        $missingReasonRows = $this->missingReasonIgnoreRows($report);
 
         $generatedAt = date('Y-m-d H:i:s');
         $title = htmlspecialchars($this->title, ENT_QUOTES);
@@ -119,12 +120,14 @@ class HtmlFormatter
 
           <section>
             <div class="section-header section-bypass">
-              Bypasses — Active ({$this->count($report->ignores)})
+              Bypasses: Active ({$this->count($report->ignores)})
             </div>
             {$ignoreRows}
           </section>
 
           {$this->expiredSection($report, $expiredRows)}
+          {$this->missingReasonSection($report, $missingReasonRows)}
+          {$this->skippedFilesSection($report)}
 
           <script>
             document.querySelectorAll('th[data-col]').forEach(th => {{
@@ -324,6 +327,71 @@ class HtmlFormatter
         TABLE;
     }
 
+    private function missingReasonIgnoreRows(EnvAuditReport $report): string
+    {
+        if (count($report->missingReasonIgnores) === 0) {
+            return '';
+        }
+
+        $rows = '';
+        foreach ($report->missingReasonIgnores as $ignore) {
+            $file = htmlspecialchars($ignore->file, ENT_QUOTES);
+            $source = htmlspecialchars($ignore->source, ENT_QUOTES);
+            $rows .= <<<ROW
+            <tr>
+              <td class="file-path">{$file}</td>
+              <td class="line-num">{$ignore->line}</td>
+              <td class="reason-text">{$source}</td>
+            </tr>
+            ROW;
+        }
+
+        return <<<TABLE
+        <table>
+          <thead><tr>
+            <th data-col="0">File</th>
+            <th data-col="1">Line</th>
+            <th data-col="2">Source</th>
+          </tr></thead>
+          <tbody>{$rows}</tbody>
+        </table>
+        TABLE;
+    }
+
+    private function missingReasonSection(EnvAuditReport $report, string $rows): string
+    {
+        if (count($report->missingReasonIgnores) === 0) {
+            return '';
+        }
+
+        $count = $this->count($report->missingReasonIgnores);
+
+        return <<<SECTION
+        <section>
+          <div class="section-header section-expired">
+            Bypasses Missing a Reason ({$count}): add a reason string to each
+          </div>
+          {$rows}
+        </section>
+        SECTION;
+    }
+
+    private function skippedFilesSection(EnvAuditReport $report): string
+    {
+        if ($report->skippedFiles === 0) {
+            return '';
+        }
+
+        return <<<SECTION
+        <section>
+          <div class="section-header section-warning">
+            {$report->skippedFiles} file(s) skipped due to parse errors and excluded from the audit
+          </div>
+          <div class="empty-state">These files were not parseable and their env() calls are not counted.</div>
+        </section>
+        SECTION;
+    }
+
     private function expiredSection(EnvAuditReport $report, string $rows): string
     {
         if (count($report->expiredIgnores) === 0) {
@@ -335,7 +403,7 @@ class HtmlFormatter
         return <<<SECTION
         <section>
           <div class="section-header section-expired">
-            Expired Bypasses ({$count}) — must be resolved or renewed
+            Expired Bypasses ({$count}): must be resolved or renewed
           </div>
           {$rows}
         </section>

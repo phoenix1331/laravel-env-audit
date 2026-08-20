@@ -39,6 +39,7 @@ return [
     */
     'ignore_paths' => [
         base_path('vendor'),
+        base_path('bootstrap/cache'),
     ],
 
     /*

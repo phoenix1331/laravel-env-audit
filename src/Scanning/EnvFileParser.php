@@ -7,7 +7,7 @@ class EnvFileParser
     /**
      * Parse an .env-style file and return only the key names.
      *
-     * Real values from .env are never stored or returned — only keys.
+     * Real values from .env are never stored or returned: only keys.
      * Values from .env.example are returned so the secret heuristic can inspect them.
      *
      * @return array<string, string|null> key => value (value is null when parsing keys-only mode)

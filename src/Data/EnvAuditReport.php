@@ -11,8 +11,10 @@ class EnvAuditReport
      * @param  array<PossibleSecret>  $possibleSecrets  flagged .env.example values
      * @param  array<IgnoreEntry>  $ignores  all active bypass entries
      * @param  array<IgnoreEntry>  $expiredIgnores  bypass entries whose expires date has passed
+     * @param  array<IgnoreEntry>  $missingReasonIgnores  bypass entries with no documented reason
      * @param  int  $totalEnvCalls  total env() calls scanned
      * @param  int  $configEnvCalls  env() calls inside config/
+     * @param  int  $skippedFiles  files that could not be parsed
      */
     public function __construct(
         public readonly array $directUsageViolations,
@@ -21,8 +23,10 @@ class EnvAuditReport
         public readonly array $possibleSecrets,
         public readonly array $ignores,
         public readonly array $expiredIgnores,
+        public readonly array $missingReasonIgnores,
         public readonly int $totalEnvCalls,
         public readonly int $configEnvCalls,
+        public readonly int $skippedFiles,
     ) {}
 
     /**
@@ -62,6 +66,7 @@ class EnvAuditReport
             'possible-secret' => count($this->possibleSecrets),
             'missing-from-example' => count($this->missingFromExample),
             'unused-in-example' => count($this->unusedInExample),
+            'missing-reason' => count($this->missingReasonIgnores),
             default => 0,
         };
     }
@@ -83,11 +88,16 @@ class EnvAuditReport
         array $unusedInExample,
         array $possibleSecrets,
         array $allIgnores,
+        int $skippedFiles = 0,
+        bool $requireReasons = false,
     ): self {
         $totalEnvCalls = count($allCalls);
         $configEnvCalls = count(array_filter($allCalls, fn (EnvCall $c) => $c->inConfig));
         $expiredIgnores = array_values(array_filter($allIgnores, fn (IgnoreEntry $i) => $i->expired));
         $activeIgnores = array_values(array_filter($allIgnores, fn (IgnoreEntry $i) => ! $i->expired));
+        $missingReasonIgnores = $requireReasons
+            ? array_values(array_filter($activeIgnores, fn (IgnoreEntry $i) => trim($i->reason) === ''))
+            : [];
 
         return new self(
             directUsageViolations: $directViolations,
@@ -96,8 +106,10 @@ class EnvAuditReport
             possibleSecrets: $possibleSecrets,
             ignores: $activeIgnores,
             expiredIgnores: $expiredIgnores,
+            missingReasonIgnores: $missingReasonIgnores,
             totalEnvCalls: $totalEnvCalls,
             configEnvCalls: $configEnvCalls,
+            skippedFiles: $skippedFiles,
         );
     }
 }

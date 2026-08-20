@@ -7,7 +7,7 @@ use Phoenix1331\LaravelEnvAudit\Data\PossibleSecret;
 class SecretHeuristicDetector
 {
     /**
-     * Known credential prefixes — these are real provider-issued key shapes.
+     * Known credential prefixes: these are real provider-issued key shapes.
      * Values are human-readable descriptions for the report.
      *
      * @var array<string, string>
@@ -30,10 +30,10 @@ class SecretHeuristicDetector
         '/^[a-f0-9]{32}$/' => 'Looks like a raw hex secret (32-char hex)',
     ];
 
-    /** Minimum length for entropy check — short values are likely placeholders */
+    /** Minimum length for entropy check; short values are likely placeholders */
     private const ENTROPY_MIN_LENGTH = 20;
 
-    /** Shannon entropy threshold — real secrets are typically above 3.5 bits/char */
+    /** Shannon entropy threshold; real secrets are typically above 3.5 bits/char */
     private const ENTROPY_THRESHOLD = 3.5;
 
     /** Values that clearly look like placeholders and should not trigger entropy */
@@ -124,7 +124,7 @@ class SecretHeuristicDetector
             key: $key,
             maskedValue: $this->mask($value),
             reason: 'entropy',
-            detail: sprintf('high entropy value (%.2f bits/char) — may be a real secret', $entropy),
+            detail: sprintf('high entropy value (%.2f bits/char), may be a real secret', $entropy),
         );
     }
 

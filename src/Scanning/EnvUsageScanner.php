@@ -21,6 +21,8 @@ class EnvUsageScanner
         $this->parser = (new ParserFactory)->createForHostVersion();
     }
 
+    private int $skippedFiles = 0;
+
     /**
      * Scan all PHP files under the given paths and return every env() call found.
      *
@@ -31,6 +33,7 @@ class EnvUsageScanner
      */
     public function scan(array $scanPaths, array $ignorePaths, string $configPath): array
     {
+        $this->skippedFiles = 0;
         $calls = [];
 
         foreach ($scanPaths as $path) {
@@ -51,6 +54,11 @@ class EnvUsageScanner
         return $calls;
     }
 
+    public function skippedFiles(): int
+    {
+        return $this->skippedFiles;
+    }
+
     /**
      * @return array<EnvCall>
      */
@@ -59,16 +67,22 @@ class EnvUsageScanner
         $source = @file_get_contents($filePath);
 
         if ($source === false) {
+            $this->skippedFiles++;
+
             return [];
         }
 
         try {
             $ast = $this->parser->parse($source);
         } catch (\Throwable) {
+            $this->skippedFiles++;
+
             return [];
         }
 
         if ($ast === null) {
+            $this->skippedFiles++;
+
             return [];
         }
 
@@ -147,8 +161,10 @@ class EnvUsageScanner
 
     private function isIgnored(string $file, array $ignorePaths): bool
     {
+        $file = $this->normalisePath($file);
+
         foreach ($ignorePaths as $ignore) {
-            $ignore = rtrim($ignore, '/').'/';
+            $ignore = rtrim($this->normalisePath($ignore), '/').'/';
             if (str_starts_with($file.'/', $ignore)) {
                 return true;
             }
@@ -159,8 +175,14 @@ class EnvUsageScanner
 
     private function isInsideConfig(string $file, string $configPath): bool
     {
-        $configPath = rtrim($configPath, '/').'/';
+        $file = $this->normalisePath($file);
+        $configPath = rtrim($this->normalisePath($configPath), '/').'/';
 
         return str_starts_with($file.'/', $configPath);
+    }
+
+    private function normalisePath(string $path): string
+    {
+        return str_replace('\\', '/', $path);
     }
 }

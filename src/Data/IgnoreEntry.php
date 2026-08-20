@@ -11,5 +11,6 @@ class IgnoreEntry
         public readonly ?string $expires,
         public readonly bool $expired,
         public readonly string $source, // 'attribute' or 'inline-comment'
+        public readonly ?int $endLine = null,
     ) {}
 }

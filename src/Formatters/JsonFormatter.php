@@ -8,10 +8,20 @@ class JsonFormatter
 {
     public function format(EnvAuditReport $report): string
     {
+        $bypassEntry = fn ($i) => [
+            'file' => $i->file,
+            'line' => $i->line,
+            'reason' => $i->reason,
+            'expires' => $i->expires,
+            'source' => $i->source,
+        ];
+
         $data = [
+            'schema_version' => '1.1',
             'isolation_score' => $report->isolationScore(),
             'total_env_calls' => $report->totalEnvCalls,
             'config_env_calls' => $report->configEnvCalls,
+            'skipped_files' => $report->skippedFiles,
             'direct_usage' => array_map(fn ($c) => [
                 'file' => $c->file,
                 'line' => $c->line,
@@ -26,20 +36,9 @@ class JsonFormatter
             'missing_from_example' => $report->missingFromExample,
             'unused_in_example' => $report->unusedInExample,
             'bypasses' => [
-                'active' => array_map(fn ($i) => [
-                    'file' => $i->file,
-                    'line' => $i->line,
-                    'reason' => $i->reason,
-                    'expires' => $i->expires,
-                    'source' => $i->source,
-                ], $report->ignores),
-                'expired' => array_map(fn ($i) => [
-                    'file' => $i->file,
-                    'line' => $i->line,
-                    'reason' => $i->reason,
-                    'expires' => $i->expires,
-                    'source' => $i->source,
-                ], $report->expiredIgnores),
+                'active' => array_map($bypassEntry, $report->ignores),
+                'expired' => array_map($bypassEntry, $report->expiredIgnores),
+                'missing_reason' => array_map($bypassEntry, $report->missingReasonIgnores),
             ],
         ];
 

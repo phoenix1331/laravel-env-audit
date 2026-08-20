@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ---
 
+## [1.1.0] - 2026-08-20
+
+### Fixed
+
+- `--json` combined with `--html=` no longer pollutes stdout with the "HTML report written to" message, keeping JSON output pipe-safe
+- `html.output_path` config key is now honoured: a report is written whenever the key is non-null, not only when the `--html` flag is passed
+- `require_ignore_reasons` config key is now enforced: a bypass with an empty or missing reason is surfaced as a violation rather than silently honoured
+- Attribute bypass coverage is now tightened to the line range of the attributed node (using `getEndLine()`), preventing a class-level `#[WithoutEnvAudit]` from silencing the rest of the file
+- Unparseable files are now counted and surfaced in all formatters rather than silently dropped from the audit
+- Path comparisons in `isInsideConfig()` and `isIgnored()` now normalise directory separators so the tool works correctly on Windows
+- Unknown `--fail-on` category names now produce a non-zero exit with a descriptive error instead of silently treating the gate as passing
+- `bootstrap/cache` added to the default `ignore_paths` alongside `vendor`
+
+### Added
+
+- GitHub Actions CI matrix across PHP 8.2/8.3/8.4 x Laravel 10/11/12/13 with `--prefer-lowest` and `--prefer-stable` runs
+- `orchestra/testbench ^11` added to `require-dev` so Laravel 13 compatibility is actually testable
+- `EnvFileParser::parseKeys()` is now wired into the command: keys in `.env` are compared against `.env.example` in both directions; opt-in via `drift.check_real_env` config (defaults false)
+- README competitor comparison section explaining what this package provides that Larastan, env-sync packages, and gitleaks do not
+
+---
+
 ## [1.0.0] - 2026-08-20
 
 ### Added
@@ -29,4 +51,5 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - 99 tests via Pest and Orchestra Testbench.
 - Pre-commit hooks: Pint linting and osv-scanner dependency audit.
 
+[1.1.0]: https://github.com/phoenix1331/laravel-env-audit/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/phoenix1331/laravel-env-audit/releases/tag/v1.0.0

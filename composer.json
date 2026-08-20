@@ -1,6 +1,6 @@
 {
     "name": "phoenix1331/laravel-env-audit",
-    "description": "Coverage reporting for your .env — static analysis for env() call isolation, .env.example drift, and secret heuristics.",
+    "description": "Coverage reporting for your .env: static analysis for env() call isolation, .env.example drift, and secret heuristics.",
     "type": "library",
     "keywords": [
         "laravel",
@@ -34,7 +34,7 @@
     },
     "require-dev": {
         "laravel/pint": "^1.0",
-        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
         "pestphp/pest": "^2.0|^3.0"
     },
     "autoload": {

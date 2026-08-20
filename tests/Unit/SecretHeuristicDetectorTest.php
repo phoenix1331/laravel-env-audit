@@ -83,7 +83,7 @@ it('does not flag null string', function () {
 // Entropy detection
 
 it('flags a high-entropy value long enough to trigger the check', function () {
-    // 40-char random-looking alphanumeric — high entropy, not a known pattern
+    // 40-char random-looking alphanumeric: high entropy, not a known pattern
     $value = 'aB3xQ9zR2mK7wP1nY6vD4cF8gH5jL0eT';
     $results = $this->detector->detect(['SOME_TOKEN' => $value]);
 
@@ -104,7 +104,7 @@ it('does not flag low-entropy long values', function () {
     expect($results)->toHaveCount(0);
 });
 
-// Masking — the critical safety requirement
+// Masking: the critical safety requirement
 
 it('never exposes the full value in maskedValue', function () {
     $value = implode('', ['sk', '_', 'live', '_', 'realSecretKeyThatMustNeverLeak12345']);
@@ -130,7 +130,7 @@ it('real value never appears in any field of the result', function () {
     expect($results)->toHaveCount(1);
     $result = $results[0];
 
-    // Check every string field — none must contain the full real value
+    // Check every string field: none must contain the full real value
     expect($result->maskedValue)->not->toContain($realValue);
     expect($result->detail)->not->toContain($realValue);
     expect($result->reason)->not->toContain($realValue);

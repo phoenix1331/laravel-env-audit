@@ -28,6 +28,8 @@ class ConsoleFormatter
         $this->writeUnusedInExample($report, $output);
         $this->writeIgnores($report, $output);
         $this->writeExpiredIgnores($report, $output);
+        $this->writeMissingReasonIgnores($report, $output);
+        $this->writeSkippedFiles($report, $output);
     }
 
     private function writeDirectUsage(EnvAuditReport $report, OutputStyle $output): void
@@ -152,7 +154,7 @@ class ConsoleFormatter
             return;
         }
 
-        $output->writeln(sprintf('  <fg=red>✘ Expired bypasses (%d) — these must be resolved or renewed</>', count($report->expiredIgnores)));
+        $output->writeln(sprintf('  <fg=red>✘ Expired bypasses (%d): these must be resolved or renewed</>', count($report->expiredIgnores)));
 
         foreach ($report->expiredIgnores as $ignore) {
             $rel = $this->relativePath($ignore->file);
@@ -165,6 +167,37 @@ class ConsoleFormatter
             ));
         }
 
+        $output->newLine();
+    }
+
+    private function writeMissingReasonIgnores(EnvAuditReport $report, OutputStyle $output): void
+    {
+        if (count($report->missingReasonIgnores) === 0) {
+            return;
+        }
+
+        $output->writeln(sprintf('  <fg=red>✘ Bypasses missing a reason (%d): add a reason string to each</>', count($report->missingReasonIgnores)));
+
+        foreach ($report->missingReasonIgnores as $ignore) {
+            $rel = $this->relativePath($ignore->file);
+            $output->writeln(sprintf(
+                '    <fg=gray>%s:%d</>  <fg=gray>[%s]</>',
+                $rel,
+                $ignore->line,
+                $ignore->source,
+            ));
+        }
+
+        $output->newLine();
+    }
+
+    private function writeSkippedFiles(EnvAuditReport $report, OutputStyle $output): void
+    {
+        if ($report->skippedFiles === 0) {
+            return;
+        }
+
+        $output->writeln(sprintf('  <fg=yellow>⚠ %d file(s) skipped due to parse errors and excluded from the audit</>', $report->skippedFiles));
         $output->newLine();
     }
 

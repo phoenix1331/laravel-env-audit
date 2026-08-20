@@ -77,6 +77,8 @@ class EnvAuditRunCommand extends Command
             unusedInExample: $unusedInExample,
             possibleSecrets: $possibleSecrets,
             allIgnores: $allIgnores,
+            skippedFiles: $scanner->skippedFiles(),
+            requireReasons: (bool) config('env-audit.require_ignore_reasons', true),
         );
 
         // Output
@@ -89,7 +91,7 @@ class EnvAuditRunCommand extends Command
         // HTML report
         $htmlPath = $this->option('html') ?? config('env-audit.html.output_path');
 
-        if ($this->option('html')) {
+        if ($htmlPath) {
             $this->writeHtmlReport($report, (string) $htmlPath);
         }
 
@@ -107,12 +109,34 @@ class EnvAuditRunCommand extends Command
         return self::SUCCESS;
     }
 
+    private const KNOWN_CATEGORIES = [
+        'direct-usage',
+        'possible-secret',
+        'missing-from-example',
+        'unused-in-example',
+        'missing-reason',
+    ];
+
     private function resolveFailOn(): array
     {
         $cliValue = $this->option('fail-on');
 
         if ($cliValue !== null) {
-            return array_map('trim', explode(',', (string) $cliValue));
+            $categories = array_filter(array_map('trim', explode(',', (string) $cliValue)));
+
+            foreach ($categories as $cat) {
+                if (! in_array($cat, self::KNOWN_CATEGORIES, true)) {
+                    $this->error(sprintf(
+                        'Unknown --fail-on category "%s". Valid values: %s',
+                        $cat,
+                        implode(', ', self::KNOWN_CATEGORIES),
+                    ));
+
+                    exit(self::FAILURE);
+                }
+            }
+
+            return array_values($categories);
         }
 
         return config('env-audit.fail_on', ['direct-usage', 'possible-secret']);
@@ -129,7 +153,10 @@ class EnvAuditRunCommand extends Command
         }
 
         file_put_contents($path, $html);
-        $this->info("HTML report written to {$path}");
+
+        if (! $this->option('json')) {
+            $this->info("HTML report written to {$path}");
+        }
     }
 
     private function writeFailureSummary(EnvAuditReport $report, array $failOn): void

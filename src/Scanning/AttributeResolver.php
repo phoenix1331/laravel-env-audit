@@ -93,11 +93,10 @@ class AttributeResolver
             }
 
             if ($entry->source === 'attribute') {
-                // Attribute line is the start of the attributed node; we accept
-                // any env() call on or after that line in the same file as covered.
-                // A more precise range would require storing end lines — acceptable
-                // for v1 where attributes are on the class/method containing the call.
-                if ($line >= $entry->line) {
+                $withinStart = $line >= $entry->line;
+                $withinEnd = $entry->endLine === null || $line <= $entry->endLine;
+
+                if ($withinStart && $withinEnd) {
                     return true;
                 }
             }
@@ -163,6 +162,7 @@ class AttributeResolver
                             expires: $expires,
                             expired: $expired,
                             source: 'attribute',
+                            endLine: $node->getEndLine() ?: null,
                         );
                     }
                 }
