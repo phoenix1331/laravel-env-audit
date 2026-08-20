@@ -11,6 +11,9 @@
 
 Static analysis for your Laravel environment configuration. Catches `env()` calls made outside `config/` (which break silently after `config:cache`), `.env.example` drift, and possible secrets accidentally committed to the example file. Reports an isolation score, a categorised violation list, and a self-contained HTML report. Fails CI when configured thresholds are breached.
 
+<img width="838" height="444" alt="Screenshot 2026-08-20 163113" src="https://github.com/user-attachments/assets/55ee528c-4d11-4161-bcca-853336585ea6" />
+
+
 The second package in the [Laravel Audit family](https://github.com/phoenix1331), after [laravel-auth-audit](https://github.com/phoenix1331/laravel-auth-audit).
 
 ---
