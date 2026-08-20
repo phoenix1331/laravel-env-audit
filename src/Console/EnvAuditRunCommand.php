@@ -97,7 +97,9 @@ class EnvAuditRunCommand extends Command
         $failOn = $this->resolveFailOn();
 
         if ($report->hasViolationsIn($failOn)) {
-            $this->writeFailureSummary($report, $failOn);
+            if (! $this->option('json')) {
+                $this->writeFailureSummary($report, $failOn);
+            }
 
             return self::FAILURE;
         }
