@@ -17,9 +17,9 @@ jobs:
         laravel: ['10', '11', '12', '13']
         dependency-version: [prefer-lowest, prefer-stable]
         exclude:
-          # all early laravel 10.x minor versions are blocked by composer security advisories,
-          # so prefer-lowest cannot resolve testbench ^8.0 against any installable set
+          # testbench 8 (laravel 10) requires pest 2, not compatible with prefer-lowest on php 8.4
           - laravel: '10'
+            php: '8.4'
             dependency-version: prefer-lowest
 
     name: php ${{ matrix.php }} / laravel ${{ matrix.laravel }} / ${{ matrix.dependency-version }}
@@ -44,6 +44,9 @@ jobs:
             12) echo "version=^10.0" >> $GITHUB_OUTPUT ;;
             13) echo "version=^11.0" >> $GITHUB_OUTPUT ;;
           esac
+
+      - name: disable composer security advisory blocking for ci
+        run: composer config --no-interaction policy.advisories.block false
 
       - name: require specific laravel and testbench versions
         run: |
