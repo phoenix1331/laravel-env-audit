@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ---
 
+## [1.2.0] - 2026-08-21
+
+### Fixed
+
+- `html.output_path` config default changed from `storage/env-audit/report.html` to `null`: HTML output is now genuinely opt-in. Set a path in config to write on every run, or pass `--html=` per-invocation. Previously the default path was always truthy, so every invocation wrote a file and created the storage directory even when neither the config key nor the `--html` flag was used.
+- `--fail-on=` passed with an empty value (e.g. `--fail-on=`) now exits 1 with a descriptive error instead of silently disabling the gate. `array_filter` over an empty string produced an empty category list, causing `hasViolationsIn([])` to return false and always exit 0.
+- Invalid `--fail-on` category and empty-value error paths now `return self::FAILURE` from `handle()` instead of calling `exit()`. Using `exit()` inside an Artisan command terminates the PHPUnit process, making these paths untestable; `return` honours Laravel's shutdown handling correctly.
+- `env-only-keys` and `example-only-keys` added to `KNOWN_CATEGORIES` and wired into `EnvAuditReport::countFor()`. Real `.env` drift keys were previously report-only and could not gate CI via `--fail-on`.
+- `AttributeResolver`: `getEndLine() ?: null` replaced with `getEndLine() > 0 ? getEndLine() : null`. PHP-Parser returns `-1` when line info is unavailable; `-1` is truthy in PHP, so the old guard stored `-1` as `endLine` and the `$line <= -1` bound was never satisfied, silently leaving the attribute covering nothing.
+- `EnvAuditReport::build()` `requireReasons` parameter default changed from `false` to `true` to match the published config default. Callers using the DTO directly previously received different behaviour from the command.
+
+### Changed
+
+- CI: `composer config policy.advisories.block false` scoped to `prefer-lowest` matrix cells only. Silencing advisories on prefer-stable runs meant a real advisory in a current dependency could pass unnoticed.
+
+### Added
+
+- CI: `vendor/bin/pint --test` lint step added before the Pest run.
+- Tests: four new feature tests covering `--fail-on=` empty value, unknown category, and `env-only-keys`/`example-only-keys` CI gating.
+
+---
+
 ## [1.1.0] - 2026-08-20
 
 ### Fixed
@@ -54,5 +76,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - 99 tests via Pest and Orchestra Testbench.
 - Pre-commit hooks: Pint linting and osv-scanner dependency audit.
 
+[1.2.0]: https://github.com/phoenix1331/laravel-env-audit/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/phoenix1331/laravel-env-audit/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/phoenix1331/laravel-env-audit/releases/tag/v1.0.0

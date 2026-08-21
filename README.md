@@ -166,7 +166,7 @@ Publish with `php artisan vendor:publish --tag=env-audit-config`.
 | `fail_on` | array | `['direct-usage', 'possible-secret']` | Categories that cause a non-zero exit code |
 | `secret_heuristics.enabled` | bool | `true` | Toggle the secret-pattern/entropy check |
 | `secret_heuristics.patterns` | array | `[]` | Extra regex patterns beyond the built-in set |
-| `html.output_path` | string | `storage/env-audit/report.html` | HTML report destination |
+| `html.output_path` | string\|null | `null` | HTML report destination; set to a path to write the report on every run, or leave null and use `--html=` per-invocation |
 | `html.title` | string | `'Env Audit Report'` | HTML report header text |
 | `drift.check_real_env` | bool | `false` | Compare the real `.env` against `.env.example` by key names only; opt-in so CI environments without a `.env` are not broken |
 | `drift.env_file` | string\|null | `null` | Path to the real `.env` file; defaults to `base_path('.env')` when null |
@@ -279,6 +279,8 @@ go install github.com/google/osv-scanner/cmd/osv-scanner@latest
 ## Roadmap
 
 **v1.1:** CI matrix (PHP 8.2-8.4 x Laravel 10-13), bug fixes from the post-release audit (attribute line-range coverage, `--fail-on` validation, path normalisation for Windows, `require_ignore_reasons` enforcement, unparseable file surfacing), real `.env` drift via `parseKeys()`, and the competitor comparison section.
+
+**v1.2:** Second-pass fixes: `html.output_path` defaults to `null` so the HTML report is opt-in (set a path in config or pass `--html=` per-invocation); `--fail-on=` with an empty value or unknown category now returns a proper error exit rather than silently passing; `env-only-keys` and `example-only-keys` wired into `countFor()` and `KNOWN_CATEGORIES` so real `.env` drift can gate CI; `getEndLine()` guard uses `> 0` to handle the PHP-Parser `-1` sentinel correctly; `EnvAuditReport::build()` `requireReasons` default aligned with the config default; `composer config policy.advisories.block false` in CI scoped to prefer-lowest runs only; `vendor/bin/pint --test` added to CI.
 
 **v2:** Baseline file for legacy adoption (only new violations fail the build), GitHub Actions annotations and SARIF output, a `phoenix1331/env-audit-action` marketplace action, extended detection surface (`Env::get()`, `getenv()`, superglobals, Blade templates), secret heuristics v2 (per-key allowlist, key-name patterns, confidence levels), and sync helpers (`env-audit:sync`, `env-audit:ignores`).
 
