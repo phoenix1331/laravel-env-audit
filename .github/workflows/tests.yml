@@ -48,7 +48,8 @@ jobs:
             13) echo "version=^11.0" >> $GITHUB_OUTPUT ;;
           esac
 
-      - name: disable composer security advisory blocking for ci
+      - name: disable composer security advisory blocking (prefer-lowest only)
+        if: matrix.dependency-version == 'prefer-lowest'
         run: composer config --no-interaction policy.advisories.block false
 
       - name: require specific laravel and testbench versions
@@ -62,6 +63,9 @@ jobs:
 
       - name: install dependencies
         run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
+
+      - name: lint
+        run: vendor/bin/pint --test
 
       - name: run tests
         run: vendor/bin/pest

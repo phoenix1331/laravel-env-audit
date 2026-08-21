@@ -136,6 +136,20 @@ it('exits 0 immediately when env-audit is disabled', function () {
     $this->artisan('env-audit:run')->assertExitCode(0);
 });
 
+// --fail-on validation
+
+it('exits 1 when --fail-on is passed an empty value', function () {
+    exampleFile($this->tmpDir, "APP_NAME=Laravel\n");
+
+    $this->artisan('env-audit:run', ['--fail-on' => ''])->assertExitCode(1);
+});
+
+it('exits 1 when --fail-on contains an unknown category', function () {
+    exampleFile($this->tmpDir, "APP_NAME=Laravel\n");
+
+    $this->artisan('env-audit:run', ['--fail-on' => 'not-a-real-category'])->assertExitCode(1);
+});
+
 // Missing from example
 
 it('detects keys used in config but missing from example', function () {
@@ -156,4 +170,28 @@ it('detects keys in example never referenced in code', function () {
     $this->app['config']->set('env-audit.fail_on', ['unused-in-example']);
 
     $this->artisan('env-audit:run')->assertExitCode(1);
+});
+
+// Real .env drift gating
+
+it('can gate on env-only-keys when real env drift check is enabled', function () {
+    $envFile = $this->tmpDir.'/.env';
+    file_put_contents($envFile, "APP_NAME=Laravel\nSECRET_ONLY_IN_ENV=value\n");
+    exampleFile($this->tmpDir, "APP_NAME=Laravel\n");
+
+    $this->app['config']->set('env-audit.drift.check_real_env', true);
+    $this->app['config']->set('env-audit.drift.env_file', $envFile);
+
+    $this->artisan('env-audit:run', ['--fail-on' => 'env-only-keys'])->assertExitCode(1);
+});
+
+it('can gate on example-only-keys when real env drift check is enabled', function () {
+    $envFile = $this->tmpDir.'/.env';
+    file_put_contents($envFile, "APP_NAME=Laravel\n");
+    exampleFile($this->tmpDir, "APP_NAME=Laravel\nDOCUMENTED_BUT_MISSING=\n");
+
+    $this->app['config']->set('env-audit.drift.check_real_env', true);
+    $this->app['config']->set('env-audit.drift.env_file', $envFile);
+
+    $this->artisan('env-audit:run', ['--fail-on' => 'example-only-keys'])->assertExitCode(1);
 });

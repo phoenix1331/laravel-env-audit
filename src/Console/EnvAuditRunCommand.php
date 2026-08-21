@@ -115,6 +115,10 @@ class EnvAuditRunCommand extends Command
         // Determine exit code
         $failOn = $this->resolveFailOn();
 
+        if ($failOn === null) {
+            return self::FAILURE;
+        }
+
         if ($report->hasViolationsIn($failOn)) {
             if (! $this->option('json')) {
                 $this->writeFailureSummary($report, $failOn);
@@ -132,14 +136,23 @@ class EnvAuditRunCommand extends Command
         'missing-from-example',
         'unused-in-example',
         'missing-reason',
+        'env-only-keys',
+        'example-only-keys',
     ];
 
-    private function resolveFailOn(): array
+    /** @return array<string>|null null signals a validation error */
+    private function resolveFailOn(): ?array
     {
         $cliValue = $this->option('fail-on');
 
         if ($cliValue !== null) {
-            $categories = array_filter(array_map('trim', explode(',', (string) $cliValue)));
+            $categories = array_values(array_filter(array_map('trim', explode(',', (string) $cliValue))));
+
+            if ($categories === []) {
+                $this->error('--fail-on requires at least one category. Valid values: '.implode(', ', self::KNOWN_CATEGORIES));
+
+                return null;
+            }
 
             foreach ($categories as $cat) {
                 if (! in_array($cat, self::KNOWN_CATEGORIES, true)) {
@@ -149,11 +162,11 @@ class EnvAuditRunCommand extends Command
                         implode(', ', self::KNOWN_CATEGORIES),
                     ));
 
-                    exit(self::FAILURE);
+                    return null;
                 }
             }
 
-            return array_values($categories);
+            return $categories;
         }
 
         return config('env-audit.fail_on', ['direct-usage', 'possible-secret']);

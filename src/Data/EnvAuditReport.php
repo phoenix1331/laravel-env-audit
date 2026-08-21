@@ -71,6 +71,8 @@ class EnvAuditReport
             'missing-from-example' => count($this->missingFromExample),
             'unused-in-example' => count($this->unusedInExample),
             'missing-reason' => count($this->missingReasonIgnores),
+            'env-only-keys' => count($this->envOnlyKeys),
+            'example-only-keys' => count($this->exampleOnlyKeys),
             default => 0,
         };
     }
@@ -93,7 +95,7 @@ class EnvAuditReport
         array $possibleSecrets,
         array $allIgnores,
         int $skippedFiles = 0,
-        bool $requireReasons = false,
+        bool $requireReasons = true,
         array $envOnlyKeys = [],
         array $exampleOnlyKeys = [],
     ): self {

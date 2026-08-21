@@ -162,7 +162,7 @@ class AttributeResolver
                             expires: $expires,
                             expired: $expired,
                             source: 'attribute',
-                            endLine: $node->getEndLine() ?: null,
+                            endLine: $node->getEndLine() > 0 ? $node->getEndLine() : null,
                         );
                     }
                 }

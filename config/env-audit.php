@@ -55,7 +55,7 @@ return [
     | Fail-on categories
     |--------------------------------------------------------------------------
     | Which violation categories cause a non-zero exit code.
-    | Options: direct-usage, possible-secret, missing-from-example, unused-in-example
+    | Options: direct-usage, possible-secret, missing-from-example, unused-in-example, missing-reason, env-only-keys, example-only-keys
     */
     'fail_on' => [
         'direct-usage',
@@ -80,7 +80,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'html' => [
-        'output_path' => storage_path('env-audit/report.html'),
+        'output_path' => null,
         'title' => 'Env Audit Report',
     ],
 
