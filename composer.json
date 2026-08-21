@@ -13,7 +13,7 @@
         "config-cache",
         "secrets"
     ],
-    "homepage": "https://github.com/phoenix1331/laravel-env-audit",
+    "homepage": "https://phoenix1331.github.io/laravel-env-audit/",
     "license": "MIT",
     "authors": [
         {
