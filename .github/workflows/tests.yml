@@ -65,6 +65,7 @@ jobs:
         run: composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
       - name: lint
+        if: matrix.dependency-version == 'prefer-stable'
         run: vendor/bin/pint --test
 
       - name: run tests
