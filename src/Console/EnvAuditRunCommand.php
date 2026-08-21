@@ -34,6 +34,25 @@ class EnvAuditRunCommand extends Command
             return self::SUCCESS;
         }
 
+        // Validate --fail-on before doing any work
+        $failOn = $this->resolveFailOn();
+
+        if ($failOn === null) {
+            return self::FAILURE;
+        }
+
+        $driftEnabled = (bool) config('env-audit.drift.check_real_env', false);
+        $driftCategories = array_intersect($failOn, ['env-only-keys', 'example-only-keys']);
+
+        if ($driftCategories !== [] && ! $driftEnabled) {
+            $this->error(sprintf(
+                'Cannot gate on %s: drift.check_real_env is disabled. Enable it in config or remove the category from --fail-on.',
+                implode(', ', $driftCategories),
+            ));
+
+            return self::FAILURE;
+        }
+
         $scanPaths = config('env-audit.scan_paths', []);
         $ignorePaths = config('env-audit.ignore_paths', []);
         $exampleFile = config('env-audit.example_file', base_path('.env.example'));
@@ -64,7 +83,7 @@ class EnvAuditRunCommand extends Command
         $envOnlyKeys = [];
         $exampleOnlyKeys = [];
 
-        if (config('env-audit.drift.check_real_env', false)) {
+        if ($driftEnabled) {
             $envFile = config('env-audit.drift.env_file') ?? base_path('.env');
 
             if (file_exists($envFile)) {
@@ -72,6 +91,12 @@ class EnvAuditRunCommand extends Command
                 $exampleKeys = array_keys($exampleEntries);
                 $envOnlyKeys = array_values(array_diff($envKeys, $exampleKeys));
                 $exampleOnlyKeys = array_values(array_diff($exampleKeys, $envKeys));
+            } elseif ($driftCategories !== []) {
+                $this->warn(sprintf(
+                    'Drift gating on %s but no .env file found at %s — gate will not fire.',
+                    implode(', ', $driftCategories),
+                    $envFile,
+                ));
             }
         }
 
@@ -113,12 +138,6 @@ class EnvAuditRunCommand extends Command
         }
 
         // Determine exit code
-        $failOn = $this->resolveFailOn();
-
-        if ($failOn === null) {
-            return self::FAILURE;
-        }
-
         if ($report->hasViolationsIn($failOn)) {
             if (! $this->option('json')) {
                 $this->writeFailureSummary($report, $failOn);

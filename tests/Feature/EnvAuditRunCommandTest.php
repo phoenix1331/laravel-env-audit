@@ -195,3 +195,20 @@ it('can gate on example-only-keys when real env drift check is enabled', functio
 
     $this->artisan('env-audit:run', ['--fail-on' => 'example-only-keys'])->assertExitCode(1);
 });
+
+it('exits 1 when gating on drift category but check_real_env is disabled', function () {
+    exampleFile($this->tmpDir, "APP_NAME=Laravel\n");
+
+    $this->app['config']->set('env-audit.drift.check_real_env', false);
+
+    $this->artisan('env-audit:run', ['--fail-on' => 'env-only-keys'])->assertExitCode(1);
+});
+
+it('exits 0 and warns when drift gating is enabled but env file is missing', function () {
+    exampleFile($this->tmpDir, "APP_NAME=Laravel\n");
+
+    $this->app['config']->set('env-audit.drift.check_real_env', true);
+    $this->app['config']->set('env-audit.drift.env_file', $this->tmpDir.'/.env.nonexistent');
+
+    $this->artisan('env-audit:run', ['--fail-on' => 'env-only-keys'])->assertExitCode(0);
+});

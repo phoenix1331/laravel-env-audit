@@ -19,7 +19,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
-- CI: `composer config policy.advisories.block false` scoped to `prefer-lowest` matrix cells only. Silencing advisories on prefer-stable runs meant a real advisory in a current dependency could pass unnoticed.
+- CI: `composer config policy.advisories.block false` applied to all matrix cells. Laravel 11's entire release history carries security advisories against `laravel/framework`, which is a transitive test dependency (via `orchestra/testbench`) not a direct package dependency. All prefer-stable Laravel 11 cells fail to resolve without the block. Scoping the block to prefer-lowest only was attempted but reverted for this reason.
 
 ### Added
 
