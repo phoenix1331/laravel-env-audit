@@ -13,7 +13,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - `html.output_path` config default changed from `storage/env-audit/report.html` to `null`: HTML output is now genuinely opt-in. Set a path in config to write on every run, or pass `--html=` per-invocation. Previously the default path was always truthy, so every invocation wrote a file and created the storage directory even when neither the config key nor the `--html` flag was used.
 - `--fail-on=` passed with an empty value (e.g. `--fail-on=`) now exits 1 with a descriptive error instead of silently disabling the gate. `array_filter` over an empty string produced an empty category list, causing `hasViolationsIn([])` to return false and always exit 0.
 - Invalid `--fail-on` category and empty-value error paths now `return self::FAILURE` from `handle()` instead of calling `exit()`. Using `exit()` inside an Artisan command terminates the PHPUnit process, making these paths untestable; `return` honours Laravel's shutdown handling correctly.
+- `--fail-on` validation moved to the top of `handle()`, before any scanning, file parsing, or HTML writing. Previously a typo'd category would complete the full audit and write any configured HTML report before producing an error.
 - `env-only-keys` and `example-only-keys` added to `KNOWN_CATEGORIES` and wired into `EnvAuditReport::countFor()`. Real `.env` drift keys were previously report-only and could not gate CI via `--fail-on`.
+- Gating on `env-only-keys` or `example-only-keys` when `drift.check_real_env` is `false` now exits 1 with a descriptive error instead of silently passing. The gate was vacuous: `envOnlyKeys` is always `[]` when drift checking is disabled, so `countFor()` returned 0 and the build always passed.
+- When `drift.check_real_env` is `true` but no `.env` file is found on disk, the command now emits a warning naming the missing file path rather than silently producing empty drift arrays. Exit code remains 0 (no findings), but the operator is told the gate cannot fire.
 - `AttributeResolver`: `getEndLine() ?: null` replaced with `getEndLine() > 0 ? getEndLine() : null`. PHP-Parser returns `-1` when line info is unavailable; `-1` is truthy in PHP, so the old guard stored `-1` as `endLine` and the `$line <= -1` bound was never satisfied, silently leaving the attribute covering nothing.
 - `EnvAuditReport::build()` `requireReasons` parameter default changed from `false` to `true` to match the published config default. Callers using the DTO directly previously received different behaviour from the command.
 
@@ -23,8 +26,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
-- CI: `vendor/bin/pint --test` lint step added before the Pest run.
-- Tests: four new feature tests covering `--fail-on=` empty value, unknown category, and `env-only-keys`/`example-only-keys` CI gating.
+- CI: `vendor/bin/pint --test` lint step added before the Pest run, scoped to `prefer-stable` cells only.
+- Tests: six new feature tests covering `--fail-on=` empty value, unknown category, `env-only-keys`/`example-only-keys` CI gating, drift-disabled error path, and missing-env-file warning path.
 
 ---
 
